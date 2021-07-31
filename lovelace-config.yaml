@@ -1,0 +1,788 @@
+views:
+  - title: eInk
+    path: eink
+    theme: EInk Theme
+    badges: []
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: weather-forecast
+            entity: weather.home
+            card_mod:
+              style: |
+                ha-card {
+                  background: none;
+                  box-shadow: none;
+                  font-weight: 700 !important;
+                }
+                .state {
+                  font-size: 1.5em !important;
+                }
+                ha-card > div > div > div > div.attribute {
+                  color: #555 !important;
+                }
+                ha-card > div > div > div.templow {
+                  color: #555 !important;
+                }
+          - type: horizontal-stack
+            cards:
+              - type: glance
+                entities:
+                  - entity: sensor.oneplus_akkufullstand
+                    name: OnePlus
+                  - entity: sensor.tabs6lite_akkufullstand
+                    name: Tablet
+                  - entity: sensor.zenbook_battery
+                    name: Laptop
+                    icon: mdi:battery
+                  - entity: sensor.inkplate_voltage
+                    name: Inkplate
+                    icon: mdi:battery
+                show_state: true
+                show_icon: true
+                show_name: true
+                state_color: false
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;
+                      font-weight: 700 !important;
+                    }
+          - type: glance
+            entities:
+              - entity: sensor.last_triggered_nfc_bettwaesche
+                name: sheets changed
+              - entity: sensor.last_triggered_nfc_handtuecher
+                name: towels changed
+            show_icon: false
+            card_mod:
+              style: |
+                ha-card {
+                  background: none;
+                  box-shadow: none;
+                  font-weight: 700 !important;
+                }
+          - type: glance
+            entities:
+              - entity: sensor.flach
+                image: local/pics/flach.png
+              - entity: sensor.restmull
+                image: local/pics/rest.png
+              - entity: sensor.biomull
+                image: local/pics/bio.png
+              - entity: sensor.rund
+                image: local/pics/rund.png
+            show_icon: true
+            state_color: false
+            show_name: true
+            show_state: true
+            card_mod:
+              style: |
+                ha-card {
+                  background: none;
+                  box-shadow: none;
+                  font-weight: 700 !important;
+                }
+          - type: custom:atomic-calendar-revive
+            entities:
+              - entity: calendar.default_calendar
+            firstDayOfWeek: 1
+            maxDaysToShow: 7
+            name: Events
+            showDate: true
+            sortByStartTime: false
+            showLocation: false
+            showDeclined: false
+            showLoader: false
+            hideFinishedEvents: false
+            showRelativeTime: false
+            dateFormat: LL
+            showCurrentEventLine: false
+            showProgressBar: false
+            showWeekDay: true
+            showMonth: false
+            showDescription: false
+            disableEventLink: false
+            showNoEventsForToday: false
+            showEventIcon: false
+            disableLocationLink: false
+            showFullDayProgress: false
+            showHiddenText: false
+            calShowDescription: false
+            showLastCalendarWeek: false
+            disableCalEventLink: false
+            disableCalLocationLink: false
+            disableCalLink: true
+            dimFinishedEvents: true
+            cardHeight: 100%
+            maxEventCount: 3
+            card_mod:
+              style: |
+                ha-card {
+                  background: none;
+                  box-shadow: none;     
+                  padding-top: 0 !important;
+                }
+                ha-card > div > div > span {
+                  font-weight: 700 !important;  
+                }
+                ha-card > div {
+                  font-weight: 700 !important; 
+                  font-size: 1.1em;
+                }
+                ha-card > div > div {
+                  font-weight: 700 !important;  
+                }
+                ha-card > div > div.cal-name {
+                  font-weight: 400 !important;  
+                }
+      - type: vertical-stack
+        cards:
+          - type: horizontal-stack
+            cards:
+              - type: custom:mini-graph-card
+                name: Wohnzimmer
+                line_color: '#b37169'
+                font_size: 80
+                decimals: 1
+                align_state: center
+                line_width: 8
+                show:
+                  legend: false
+                  icon: false
+                entities:
+                  - entity: sensor.sonoff_temp_wohnzimmer_temperature
+                    name: Temperatur
+                    index: 0
+                    y_axis: secondary
+                  - entity: sensor.sonoff_temp_wohnzimmer_humidity
+                    name: Humidity
+                    show_state: true
+                    index: 1
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;      
+                    }
+                    ha-card > div > div > span {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div > div.name > span.ellipsis {
+                      color: #000 !important;  
+                    }
+              - type: custom:mini-graph-card
+                name: Flur
+                line_color: '#b37169'
+                font_size: 80
+                decimals: 1
+                align_state: center
+                line_width: 8
+                show:
+                  legend: false
+                  icon: false
+                entities:
+                  - entity: sensor.sonoff_temp_flur_temperature
+                    name: Temperatur
+                    index: 0
+                    y_axis: secondary
+                  - entity: sensor.sonoff_temp_flur_humidity
+                    name: Humidity
+                    show_state: true
+                    index: 1
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;      
+                    }
+                    ha-card > div > div > span {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div > div.name > span.ellipsis {
+                      color: #000 !important;  
+                    }
+          - type: horizontal-stack
+            cards:
+              - type: custom:mini-graph-card
+                name: Küche
+                line_color: '#b37169'
+                font_size: 80
+                decimals: 1
+                align_state: center
+                line_width: 8
+                show:
+                  legend: false
+                  icon: false
+                entities:
+                  - entity: sensor.sonoff_temp_kueche_temperature
+                    name: Temperatur
+                    index: 0
+                    y_axis: secondary
+                  - entity: sensor.sonoff_temp_kueche_humidity
+                    name: Humidity
+                    show_state: true
+                    index: 1
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;      
+                    }
+                    ha-card > div > div > span {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div > div.name > span.ellipsis {
+                      color: #000 !important;  
+                    }
+              - type: custom:mini-graph-card
+                name: Bad
+                line_color: '#b37169'
+                font_size: 80
+                decimals: 1
+                align_state: center
+                line_width: 8
+                show:
+                  legend: false
+                  icon: false
+                entities:
+                  - entity: sensor.sonoff_temp_bad_temperature
+                    name: Temperatur
+                    index: 0
+                    y_axis: secondary
+                  - entity: sensor.sonoff_temp_bad_humidity
+                    name: Humidity
+                    show_state: true
+                    index: 1
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;      
+                    }
+                    ha-card > div > div > span {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div > div.name > span.ellipsis {
+                      color: #000 !important;  
+                    }
+          - type: horizontal-stack
+            cards:
+              - type: custom:mini-graph-card
+                name: Büro
+                line_color: '#b37169'
+                font_size: 80
+                decimals: 1
+                align_state: center
+                line_width: 8
+                show:
+                  legend: false
+                  icon: false
+                entities:
+                  - entity: sensor.sonoff_temp_buero_temperature
+                    name: Temperatur
+                    index: 0
+                    y_axis: secondary
+                  - entity: sensor.sonoff_temp_buero_humidity
+                    name: Humidity
+                    show_state: true
+                    index: 1
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;      
+                    }
+                    ha-card > div > div > span {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div > div.name > span.ellipsis {
+                      color: #000 !important;  
+                    }
+              - type: custom:mini-graph-card
+                name: Schlafzimmer
+                line_color: '#b37169'
+                font_size: 80
+                decimals: 1
+                align_state: center
+                line_width: 8
+                show:
+                  legend: false
+                  icon: false
+                entities:
+                  - entity: sensor.sonoff_temp_schlafzimmer_temperature
+                    name: Temperatur
+                    index: 0
+                    y_axis: secondary
+                  - entity: sensor.sonoff_temp_schlafzimmer_humidity
+                    name: Humidity
+                    show_state: true
+                    index: 1
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;      
+                    }
+                    ha-card > div > div > span {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div > div.name > span.ellipsis {
+                      color: #000 !important;  
+                    }
+          - type: horizontal-stack
+            cards:
+              - type: custom:mini-graph-card
+                name: NUC CPU
+                line_color: '#bbb'
+                font_size: 80
+                font_size_header: 12
+                unit: '%'
+                decimals: 0
+                align_state: center
+                align_header: center
+                line_width: 12
+                show:
+                  icon: false
+                entities:
+                  - entity: sensor.nuc_cpu
+                    name: NUC CPU
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;      
+                    }
+                    ha-card > div > div > span {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div > div.name > span.ellipsis {
+                      color: #000 !important;  
+                    }
+              - type: custom:mini-graph-card
+                name: Server CPU
+                line_color: '#bbb'
+                font_size: 80
+                font_size_header: 12
+                unit: '%'
+                decimals: 0
+                align_state: center
+                align_header: center
+                line_width: 12
+                show:
+                  icon: false
+                entities:
+                  - entity: sensor.itobey_cpu
+                    name: IT-obey CPU
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;      
+                    }
+                    ha-card > div > div > span {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div > div.name > span.ellipsis {
+                      color: #000 !important;  
+                    }
+              - type: custom:mini-graph-card
+                name: Odroid CPU
+                line_color: '#bbb'
+                font_size: 80
+                font_size_header: 12
+                unit: '%'
+                decimals: 0
+                align_state: center
+                align_header: center
+                line_width: 12
+                show:
+                  icon: false
+                entities:
+                  - entity: sensor.odroid_cpu
+                    name: IT-obey Uptime
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;      
+                    }
+                    ha-card > div > div > span {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div > div.name > span.ellipsis {
+                      color: #000 !important;  
+                    }
+          - type: horizontal-stack
+            cards:
+              - type: custom:mini-graph-card
+                name: NUC RAM
+                line_color: '#bbb'
+                font_size: 80
+                font_size_header: 12
+                unit: '%'
+                decimals: 0
+                align_state: center
+                align_header: center
+                line_width: 12
+                show:
+                  icon: false
+                entities:
+                  - entity: sensor.nuc_ram
+                    name: NUC CPU
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;      
+                    }
+                    ha-card > div > div > span {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div > div.name > span.ellipsis {
+                      color: #000 !important;  
+                    }
+              - type: custom:mini-graph-card
+                name: Server RAM
+                line_color: '#bbb'
+                font_size: 80
+                font_size_header: 12
+                unit: '%'
+                decimals: 0
+                align_state: center
+                align_header: center
+                line_width: 12
+                show:
+                  icon: false
+                entities:
+                  - entity: sensor.itobey_ram
+                    name: IT-obey RAM
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;      
+                    }
+                    ha-card > div > div > span {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div > div.name > span.ellipsis {
+                      color: #000 !important;  
+                    }
+              - type: custom:mini-graph-card
+                name: Odroid RAM
+                line_color: '#bbb'
+                font_size: 80
+                font_size_header: 12
+                unit: '%'
+                decimals: 0
+                align_state: center
+                align_header: center
+                line_width: 12
+                show:
+                  icon: false
+                entities:
+                  - entity: sensor.odroid_ram
+                    name: IT-obey RAM
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;      
+                    }
+                    ha-card > div > div > span {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div > div.name > span.ellipsis {
+                      color: #000 !important;  
+                    }
+          - type: horizontal-stack
+            cards:
+              - type: custom:mini-graph-card
+                name: NUC Uptime
+                line_color: '#bbb'
+                font_size: 80
+                font_size_header: 12
+                unit: days
+                decimals: 1
+                align_state: center
+                align_header: center
+                line_width: 12
+                show:
+                  icon: false
+                entities:
+                  - entity: sensor.nuc_uptime
+                    name: NUC Uptime
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;      
+                    }
+                    ha-card > div > div > span {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div > div.name > span.ellipsis {
+                      color: #000 !important;  
+                    }
+              - type: custom:mini-graph-card
+                name: Server Uptime
+                line_color: '#bbb'
+                font_size: 80
+                font_size_header: 12
+                unit: days
+                decimals: 1
+                align_state: center
+                align_header: center
+                line_width: 12
+                show:
+                  icon: false
+                entities:
+                  - entity: sensor.itobey_uptime
+                    name: IT-obey Uptime
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;      
+                    }
+                    ha-card > div > div > span {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div > div.name > span.ellipsis {
+                      color: #000 !important;  
+                    }
+              - type: custom:mini-graph-card
+                name: Odroid Uptime
+                line_color: '#bbb'
+                font_size: 80
+                font_size_header: 12
+                unit: days
+                decimals: 1
+                align_state: center
+                align_header: center
+                line_width: 12
+                show:
+                  icon: false
+                entities:
+                  - entity: sensor.odroid_uptime
+                    name: IT-obey Uptime
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;      
+                    }
+                    ha-card > div > div > span {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div {
+                      font-weight: 700 !important;  
+                    }
+                    ha-card > div > div.name > span.ellipsis {
+                      color: #000 !important;  
+                    }
+      - type: vertical-stack
+        cards:
+          - type: iframe
+            url: >-
+              https://grafana.nuc.local/d-solo/B6fqNcYGk/power-usage-eink?orgId=1&panelId=24&from=now-12h&to=now&theme=light
+            aspect_ratio: 50%
+            card_mod:
+              style: |
+                ha-card {
+                  background: none;
+                  box-shadow: none;
+                }
+          - type: grid
+            cards:
+              - type: iframe
+                url: >-
+                  https://grafana.nuc.local/d-solo/xHYGlxyGk/new-dashboard-copy?orgId=1&panelId=2&theme=light
+                aspect_ratio: 50%
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;
+                    }
+              - type: iframe
+                url: >-
+                  https://grafana.nuc.local/d-solo/xHYGlxyGk/new-dashboard-copy?orgId=1&panelId=3&theme=light
+                aspect_ratio: 50%
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;
+                    }
+            columns: 2
+            square: false
+          - type: grid
+            cards:
+              - type: iframe
+                url: >-
+                  https://grafana.nuc.local/d-solo/xHYGlxyGk/new-dashboard-copy?orgId=1&from=now-12h&to=now&panelId=5&theme=light
+                aspect_ratio: 70%
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;
+                    }
+              - type: iframe
+                url: >-
+                  https://grafana.nuc.local/d-solo/xHYGlxyGk/new-dashboard-copy?orgId=1&from=now-12h&to=now&panelId=6&theme=light
+                aspect_ratio: 70%
+                card_mod:
+                  style: |
+                    ha-card {
+                      background: none;
+                      box-shadow: none;
+                    }
+            columns: 2
+            square: false
+          - type: custom:uptime-card
+            entity: binary_sensor.ddns1
+            name: DDNS 1
+            icon: mdi:heart
+            hours_to_show: 24
+            title_adaptive_color: true
+            average_template: '[[[ return variables.uptime.toFixed(2); ]]]% uptime'
+            bar:
+              height: 20
+              round: 5
+              spacing: 10
+              amount: 10
+            color:
+              none: '#eee'
+              ko: '#eee'
+              ok: '#333'
+              half: '#aaa'
+            show:
+              status: false
+              icon: false
+            tap_action:
+              action: url
+              url_path: https://www.google.com/
+            alignment:
+              status: spaced
+              header: center
+            card_mod:
+              style: |
+                ha-card {
+                  background: none;
+                  box-shadow: none;
+                  border: none;
+                  background: #fff;
+                  font-weight: 700;
+                }
+                ha-card > .footer > div {
+                  color: #333 !important;
+                }
+          - type: custom:uptime-card
+            entity: binary_sensor.ddns2
+            name: DDNS 2
+            icon: mdi:heart
+            hours_to_show: 24
+            title_adaptive_color: true
+            average_template: '[[[ return variables.uptime.toFixed(2); ]]]% uptime'
+            bar:
+              height: 20
+              round: 5
+              spacing: 10
+              amount: 10
+            color:
+              none: '#eee'
+              ko: '#eee'
+              ok: '#333'
+              half: '#aaa'
+            show:
+              status: false
+              icon: false
+            tap_action:
+              action: url
+              url_path: https://www.google.com/
+            alignment:
+              status: spaced
+              header: center
+            alias: {}
+            tooltip: {}
+            card_mod:
+              style: |
+                ha-card {
+                  background: none;
+                  box-shadow: none;
+                  border: none;
+                  background: #fff;
+                  font-weight: 700;
+                }
+                ha-card > .footer > div {
+                  color: #333 !important;
+                }
+            blink: {}
+          - type: iframe
+            url: >-
+              https://grafana.nuc.local/d-solo/ks5IJ6sMz/body?orgId=1&from=1624561216494&to=1627153216494&panelId=3&theme=light
+            aspect_ratio: 35%
+            card_mod:
+              style: |
+                ha-card {
+                  background: none;
+                  box-shadow: none;
+                }
+          - type: custom:update-time-card
+            hide_seconds: true
+            font_size: 1rem
+            card_mod:
+              style: |
+                ha-card {
+                  font-weight: 700;
+                }
+                ha-card >div {
+                  font-weight: 700;
+                  padding: 5px 16px  !important;
+                }
