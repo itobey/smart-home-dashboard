@@ -1,0 +1,76 @@
+# Theme for eink displays, based on Github
+# Creator: @itobey - forked from @einschmidt
+#
+#
+EInk Theme:
+  # Header:
+  app-header-background-color: "#24292e"
+  app-header-text-color: "#fafbfc"
+  # Main Interface Colors
+  primary-color: "#0366d6"
+  light-primary-color: "var(--primary-color)"
+  primary-background-color: "#FFF"
+  secondary-background-color: "#fafbfc"
+  divider-color: "#e1e4e8"
+  accent-color: "#0366d6"
+  # Text
+  primary-text-color: "#2f363d"
+  secondary-text-color: "#959da5"
+  text-primary-color: "#fafbfc"
+  disabled-text-color: "#959da5"
+  # Sidebar Menu
+  sidebar-icon-color: "#6a737d"
+  sidebar-text-color: "#2f363d"
+  sidebar-background-color: "#FFFFFF"
+  sidebar-selected-background-color: var(--primary-background-color)
+  sidebar-selected-icon-color: "#2188ff"
+  sidebar-selected-text-color: var(--sidebar-selected-icon-color)
+  # Buttons
+  paper-item-icon-color: "#6a737d"
+  paper-item-icon-active-color: "#2188ff"
+  # States and Badges
+  state-icon-color: "#6a737d"
+  state-icon-active-color: "#2188ff"
+  state-icon-unavailable-color: var(--disabled-text-color)
+  # Sliders
+  paper-slider-knob-color: "#2188ff"
+  paper-slider-knob-start-color: var(--paper-slider-knob-color)
+  paper-slider-pin-color: var(--paper-slider-knob-color)
+  paper-slider-active-color: var(--paper-slider-knob-color)
+  paper-slider-secondary-color: var(--light-primary-color)
+  # Labels
+  label-badge-background-color: "#24292e"
+  label-badge-text-color: "#fafbfc"
+  label-badge-red: "#d73a49"
+  label-badge-green: "#28a745"
+  label-badge-blue: "#2188ff"
+  label-badge-yellow: "#ffd33d"
+  label-badge-gray: "#6a737d"
+  # Cards
+  card-background-color: "#FFFFFF"
+  ha-card-border-radius: "6px"
+  ha-card-box-shadow: "0px 0px 0px 1px #e1e4e8"
+  paper-dialog-background-color: var(--card-background-color)
+  paper-listbox-background-color: var(--card-background-color)
+  paper-card-background-color: var(--card-background-color)
+  # Switches
+  switch-checked-button-color: "#2188ff"
+  switch-checked-track-color: "#2188ff"
+  switch-unchecked-button-color: "#6a737d"
+  switch-unchecked-track-color: "#6a737d"
+  # Toggles
+  paper-toggle-button-checked-button-color: var(--switch-checked-button-color)
+  paper-toggle-button-checked-bar-color: var(--switch-checked-track-color)
+  paper-toggle-button-unchecked-button-color: var(--switch-unchecked-button-color)
+  paper-toggle-button-unchecked-bar-color: var(--switch-unchecked-track-color)
+  # Table
+  table-row-background-color: var(--primary-background-color)
+  table-row-alternative-background-color: var(--secondary-background-color)
+  data-table-background-color: var(--primary-background-color)
+  mdc-checkbox-unchecked-color: "#6a737d"
+  # Dropdowns
+  material-background-color: var(--secondary-background-color)
+  material-secondary-background-color: var(--primary-background-color)
+  mdc-theme-surface: var(--primary-background-color)
+  # Pre/Code
+  markdown-code-background-color: "#FFFFFF"
