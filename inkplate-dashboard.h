@@ -37,12 +37,10 @@ void displayImage()
 {
     // display image on screen
     display.begin();        // Init Inkplate library (you should call this function ONLY ONCE)
-    display.clearDisplay(); // Clear frame buffer of display
-    display.display();      // Put clear image on display
 
     Serial.println("\nWiFi OK! Downloading...");
 
-    if (!display.drawImage("http://hass-screenshot-nginx.nuc.local/output.jpg", 0, 0, false, false))
+    if (!display.drawImage("http://hass-screenshot-nginx.nuc.local:81/output.jpg", 0, 0, false, false))
     {
         Serial.println("Image open error");
     }
