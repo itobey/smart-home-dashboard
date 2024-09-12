@@ -40,7 +40,7 @@ void displayImage()
 
     Serial.println("\nWiFi OK! Downloading...");
 
-    if (!display.drawImage("http://hass-screenshot-nginx.nuc.local:81/output.jpg", 0, 0, false, false))
+    if (!display.drawImage("http://hass-screenshot-nginx.nuc.local:81/output.jpeg", 0, 0, false, false))
     {
         Serial.println("Image open error");
     }
