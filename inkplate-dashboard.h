@@ -3,106 +3,31 @@
 #error "Wrong board selection for this example, please select Inkplate 10 in the boards menu."
 #endif
 
-#include "HTTPClient.h"          //Include library for HTTPClient
-#include "Inkplate.h"            //Include Inkplate library to the sketch
-#include "WiFi.h"                //Include library for WiFi
-#include "driver/rtc_io.h"       //ESP32 library used for deep sleep and RTC wake up pins
-#include "PubSubClient.h"        //mqtt connection
+#include <Arduino.h>
+#include <HTTPClient.h>
+#include <Inkplate.h>
+#include <WiFi.h>
+#include <driver/rtc_io.h>
+#include <PubSubClient.h>
+
 Inkplate display(INKPLATE_3BIT);
 
-#define uS_TO_S_FACTOR 1000000 // Conversion factor for micro seconds to seconds
-#define TIME_TO_SLEEP  1200      // How long ESP32 will be in deep sleep (in seconds)
-
-const char *ssid = ""; // Your WiFi SSID
-const char *password = ""; // Your WiFi password
-const char *mqtt_server = "192.168.0.34";
+// Constants
+const unsigned long DEEP_SLEEP_DURATION = 1200UL; // 20 minutes in seconds
+const char* WIFI_SSID = ""; // Your WiFi SSID
+const char* WIFI_PASSWORD = ""; // Your WiFi password
+const char* MQTT_SERVER = "192.168.0.34";
+const int MQTT_PORT = 1883;
+const char* MQTT_CLIENT_ID = "Inkplate";
+const char* MQTT_USER = ""; // Add your MQTT username here
+const char* MQTT_PASSWORD = ""; // Add your MQTT password here
+const char* MQTT_TOPIC = "home/inkplate";
+const char* IMAGE_URL = "https://hass-screenshot-nginx.nuc.one/output.jpeg";
 
 WiFiClient espClient;
-PubSubClient client(espClient);
+PubSubClient mqttClient(espClient);
 
-void connectWifi()
-{
-    // Connect to the WiFi network.
-    Serial.print("Connecting to WiFi...");
-    WiFi.mode(WIFI_MODE_STA);
-    WiFi.begin(ssid, password);
-    while (WiFi.status() != WL_CONNECTED)
-    {
-        delay(500);
-        Serial.print(".");
-    } 
-}
-
-void displayImage()
-{
-    // display image on screen
-    display.begin();        // Init Inkplate library (you should call this function ONLY ONCE)
-
-    Serial.println("\nWiFi OK! Downloading...");
-
-    if (!display.drawImage("http://hass-screenshot-nginx.nuc.local:81/output.jpeg", 0, 0, false, false))
-    {
-        Serial.println("Image open error");
-    }
-    display.display();
-}
-
-// reconnect the mqtt connection
-void reconnect()
-{
-    // Loop until we're reconnected
-    while (!client.connected())
-    {
-        Serial.print("Attempting MQTT connection...");
-        // Attempt to connect, sending the client name
-        if (client.connect("Inkplate"))
-        {
-            Serial.println("connected");
-        }
-        else
-        {
-            Serial.print("failed, rc=");
-            Serial.print(client.state());
-            Serial.println(" try again in 5 seconds");
-            // Wait 5 seconds before retrying
-            delay(5000);
-        }
-    }
-}
-
-void sendMqttMsg()
-{
-      // publish voltage and temperature on mqtt
-    client.setServer(mqtt_server, 1883);
-
-    if (!client.connected())
-    {
-        reconnect();
-    }
-    client.loop();
-    
-    int temperature;
-    float voltage;
-    temperature = display.readTemperature(); // Read temperature from on-board temperature sensor
-    voltage = display.readBattery(); // Read battery voltage (NOTE: Doe to ESP32 ADC accuracy, you should calibrate the ADC!)
-    String msg = "inkplate temperature=" + String(temperature) + ",voltage=" + String(voltage);
-    Serial.println(msg);
-    // Convert the value to a char array
-    char *tab2 = new char[msg.length() + 1];
-    strcpy(tab2, msg.c_str());
-    client.publish("home/inkplate", tab2);
-}
-
-void goToSleep()
-{
-    WiFi.mode(WIFI_OFF);
-    rtc_gpio_isolate(GPIO_NUM_12); // Isolate/disable GPIO12 on ESP32 (only to reduce power consumption in sleep)
-    esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR); // Activate wake-up timer -- wake up after 20s here
-    esp_deep_sleep_start();                                        // Put ESP32 into deep sleep. Program stops here.
-}
-
-void setup()
-{
+void setup() {
     Serial.begin(115200);
     connectWifi();
     displayImage();
@@ -110,7 +35,95 @@ void setup()
     goToSleep();
 }
 
-void loop()
-{
-    // Nothing...
+void loop() {
+    // Empty loop as we're using deep sleep
+}
+
+void connectWifi() {
+    Serial.print("Connecting to WiFi...");
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    
+    unsigned long startAttemptTime = millis();
+    
+    while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
+        delay(100);
+        Serial.print(".");
+    }
+    
+    if (WiFi.status() != WL_CONNECTED) {
+        Serial.println("\nFailed to connect to WiFi. Restarting...");
+        ESP.restart();
+    }
+    
+    Serial.println("\nConnected to WiFi");
+}
+
+void displayImage() {
+    display.begin();
+    Serial.println("Downloading image...");
+    
+    if (!display.drawImage(IMAGE_URL, 0, 0, false, false)) {
+        Serial.println("Error opening image");
+        return;
+    }
+    
+    display.display();
+    Serial.println("Image displayed successfully");
+}
+
+void reconnectMqtt() {
+    int attempts = 0;
+    while (!mqttClient.connected() && attempts < 3) {
+        Serial.print("Attempting MQTT connection...");
+        if (mqttClient.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD)) {
+            Serial.println("connected");
+            return;
+        } else {
+            Serial.print("failed, rc=");
+            Serial.print(mqttClient.state());
+            Serial.println(" retrying in 5 seconds");
+            delay(5000);
+            attempts++;
+        }
+    }
+    
+    if (!mqttClient.connected()) {
+        Serial.println("Failed to connect to MQTT after 3 attempts");
+    }
+}
+
+void sendMqttMsg() {
+    mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
+    
+    if (!mqttClient.connected()) {
+        reconnectMqtt();
+    }
+    
+    if (mqttClient.connected()) {
+        int temperature = display.readTemperature();
+        float voltage = display.readBattery();
+        
+        char message[60];
+        snprintf(message, sizeof(message), "inkplate temperature=%d,voltage=%.2f", temperature, voltage);
+        
+        if (mqttClient.publish(MQTT_TOPIC, message)) {
+            Serial.println("MQTT message sent successfully");
+        } else {
+            Serial.println("Failed to send MQTT message");
+        }
+        
+        mqttClient.disconnect();
+    }
+}
+
+void goToSleep() {
+    WiFi.disconnect(true);
+    WiFi.mode(WIFI_OFF);
+    rtc_gpio_isolate(GPIO_NUM_12);
+    
+    esp_sleep_enable_timer_wakeup(DEEP_SLEEP_DURATION * 1000000UL);
+    Serial.println("Going to sleep...");
+    Serial.flush();
+    esp_deep_sleep_start();
 }
