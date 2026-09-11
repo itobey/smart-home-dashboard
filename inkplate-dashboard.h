@@ -9,6 +9,7 @@
 #include <WiFi.h>
 #include <driver/rtc_io.h>
 #include <PubSubClient.h>
+#include <esp_task_wdt.h>
 
 Inkplate display(INKPLATE_3BIT);
 
@@ -24,14 +25,34 @@ const char* MQTT_PASSWORD = ""; // Add your MQTT password here
 const char* MQTT_TOPIC = "home/inkplate";
 const char* IMAGE_URL = "https://hass-screenshot-nginx.nuc.one/output.jpeg";
 
+#define WDT_TIMEOUT 60 // seconds; resets the board if startup hangs
+
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
 
+void initWatchdog() {
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+    esp_task_wdt_config_t wdt_config = {
+        .timeout_ms = WDT_TIMEOUT * 1000,
+        .idle_core_mask = 0,
+        .trigger_panic = true
+    };
+    esp_task_wdt_init(&wdt_config);
+#else
+    esp_task_wdt_init(WDT_TIMEOUT, true);
+#endif
+    esp_task_wdt_add(NULL);
+}
+
 void setup() {
     Serial.begin(115200);
+    initWatchdog(); // keeps the board from hanging forever during startup
     connectWifi();
+    esp_task_wdt_reset(); // reset watchdog after WiFi connect
     displayImage();
+    esp_task_wdt_reset(); // reset watchdog after image fetch/display
     sendMqttMsg();
+    esp_task_wdt_reset(); // reset watchdog before deep sleep
     goToSleep();
 }
 
@@ -85,6 +106,7 @@ void reconnectMqtt() {
             Serial.println(" retrying in 5 seconds");
             delay(5000);
             attempts++;
+            esp_task_wdt_reset(); // keep watchdog alive during MQTT retry waits
         }
     }
     
@@ -95,6 +117,7 @@ void reconnectMqtt() {
 
 void sendMqttMsg() {
     mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
+    mqttClient.setSocketTimeout(10); // seconds; prevents indefinite socket blocking
     
     if (!mqttClient.connected()) {
         reconnectMqtt();
