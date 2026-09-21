@@ -9,11 +9,19 @@
 #include <WiFi.h>
 #include <driver/rtc_io.h>
 #include <PubSubClient.h>
+#include <esp_arduino_version.h>
+#include <esp_err.h>
+#include <esp_attr.h>
+#include <esp_system.h>
+#include <esp_task_wdt.h>
 
 Inkplate display(INKPLATE_3BIT);
 
 // Constants
 const unsigned long DEEP_SLEEP_DURATION = 1200UL; // 20 minutes in seconds
+const unsigned int WDT_TIMEOUT_SECONDS = 60;
+const unsigned int WIFI_CONNECT_ATTEMPTS = 2;
+const unsigned long WIFI_CONNECT_TIMEOUT_MS = 10000UL;
 const char* WIFI_SSID = ""; // Your WiFi SSID
 const char* WIFI_PASSWORD = ""; // Your WiFi password
 const char* MQTT_SERVER = "192.168.0.34";
@@ -27,11 +35,86 @@ const char* IMAGE_URL = "https://hass-screenshot-nginx.nuc.one/output.jpeg";
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
 
+// Unlike ordinary globals, this survives a watchdog reboot without flash writes.
+// Initialize explicitly on a fresh boot or a wake from deep sleep.
+RTC_NOINIT_ATTR uint32_t watchdogRecoveryUsed;
+
+bool connectWifi();
+void displayImage();
+void sendMqttMsg();
+void goToSleep();
+
+bool shouldSleepAfterWatchdogReset() {
+    esp_reset_reason_t reason = esp_reset_reason();
+    bool watchdogReset = reason == ESP_RST_TASK_WDT ||
+                         reason == ESP_RST_INT_WDT || reason == ESP_RST_WDT;
+    if (!watchdogReset) {
+        watchdogRecoveryUsed = 0;
+        return false;
+    }
+
+    if (watchdogRecoveryUsed != 0) {
+        return true;
+    }
+
+    watchdogRecoveryUsed = 1;
+    Serial.println("Watchdog reset. Trying one immediate recovery.");
+    return false;
+}
+
+bool initWatchdog() {
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+    esp_task_wdt_config_t wdtConfig = {};
+    wdtConfig.timeout_ms = WDT_TIMEOUT_SECONDS * 1000;
+    wdtConfig.idle_core_mask = 0;
+    wdtConfig.trigger_panic = true;
+
+    esp_err_t result = esp_task_wdt_init(&wdtConfig);
+    if (result == ESP_ERR_INVALID_STATE) {
+        // Startup may have initialized the watchdog with different settings.
+        result = esp_task_wdt_reconfigure(&wdtConfig);
+    }
+#else
+    // The older API also updates an already-initialized watchdog.
+    esp_err_t result = esp_task_wdt_init(WDT_TIMEOUT_SECONDS, true);
+#endif
+    if (result != ESP_OK) {
+        Serial.printf("Failed to configure watchdog: %s\n", esp_err_to_name(result));
+        return false;
+    }
+
+    // The current task may already be subscribed by the runtime.
+    if (esp_task_wdt_status(NULL) != ESP_OK) {
+        result = esp_task_wdt_add(NULL);
+        if (result != ESP_OK) {
+            Serial.printf("Failed to register watchdog task: %s\n", esp_err_to_name(result));
+            return false;
+        }
+    }
+    return true;
+}
+
 void setup() {
     Serial.begin(115200);
-    connectWifi();
+    if (shouldSleepAfterWatchdogReset()) {
+        Serial.println("Repeated watchdog reset. Sleeping before retrying.");
+        goToSleep();
+        return;
+    }
+    if (!initWatchdog()) {
+        Serial.println("Watchdog unavailable. Sleeping before retrying.");
+        goToSleep();
+        return;
+    }
+    if (!connectWifi()) {
+        goToSleep();
+        return;
+    }
+    esp_task_wdt_reset();
     displayImage();
+    esp_task_wdt_reset();
     sendMqttMsg();
+    esp_task_wdt_reset();
     goToSleep();
 }
 
@@ -39,24 +122,31 @@ void loop() {
     // Empty loop as we're using deep sleep
 }
 
-void connectWifi() {
-    Serial.print("Connecting to WiFi...");
+bool connectWifi() {
     WiFi.mode(WIFI_STA);
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    
-    unsigned long startAttemptTime = millis();
-    
-    while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
-        delay(100);
-        Serial.print(".");
+    for (unsigned int attempt = 0; attempt < WIFI_CONNECT_ATTEMPTS; attempt++) {
+        Serial.printf("Connecting to WiFi (attempt %u/%u)...\n",
+                      attempt + 1, WIFI_CONNECT_ATTEMPTS);
+        WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+        unsigned long startAttemptTime = millis();
+        while (WiFi.status() != WL_CONNECTED &&
+               millis() - startAttemptTime < WIFI_CONNECT_TIMEOUT_MS) {
+            delay(100);
+            Serial.print(".");
+        }
+
+        if (WiFi.status() == WL_CONNECTED) {
+            Serial.println("\nConnected to WiFi");
+            return true;
+        }
+
+        WiFi.disconnect();
+        esp_task_wdt_reset();
     }
-    
-    if (WiFi.status() != WL_CONNECTED) {
-        Serial.println("\nFailed to connect to WiFi. Restarting...");
-        ESP.restart();
-    }
-    
-    Serial.println("\nConnected to WiFi");
+
+    Serial.println("\nFailed to connect to WiFi after two attempts. Sleeping before retrying.");
+    return false;
 }
 
 void displayImage() {
@@ -85,6 +175,7 @@ void reconnectMqtt() {
             Serial.println(" retrying in 5 seconds");
             delay(5000);
             attempts++;
+            esp_task_wdt_reset();
         }
     }
     
@@ -95,6 +186,7 @@ void reconnectMqtt() {
 
 void sendMqttMsg() {
     mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
+    mqttClient.setSocketTimeout(10); // Seconds for MQTT response/read waits.
     
     if (!mqttClient.connected()) {
         reconnectMqtt();
